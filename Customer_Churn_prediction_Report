@@ -1,1 +1,220 @@
+Project: 1
+Customer Churn Prediction
+1.Introduction:
+Customer churn is a major challenge for subscription-based businesses such as telecom companies, internet service providers, banks, and OTT platforms. Churn refers to the percentage of customers who discontinue their services within a specific period. High churn leads to significant revenue loss because acquiring new customers is far more expensive than retaining existing ones.
+Predicting churn in advance helps companies identify “at-risk” customers and take preventive actions—such as offering personalized discounts, improving service quality, or providing better customer support. Machine learning plays an important role in this process by analyzing customer behavior patterns and predicting the likelihood of churn.
+In this project, we use the Telco Customer Churn dataset, which contains detailed information about customer demographics, account details, service subscriptions, tenure, billing, and payment methods. The goal is to build a machine learning model that can accurately predict whether a customer will churn.
+This project follows the complete data science lifecycle, including:
+•	Data cleaning and preprocessing
+•	Exploratory Data Analysis (EDA)
+•	Feature engineering
+•	Baseline and advanced machine learning models
+•	Model explainability using SHAP
+•	Deployment of the final model using FastAPI
+The final output is a churn prediction system that can help an organization develop proactive customer retention strategies.
+2. Dataset Description
+The dataset used in this project is the Telco Customer Churn Dataset (Extended Version), which contains detailed demographic, geographic, service usage, billing, and churn-related information for telecom customers. The primary objective of this dataset is to analyze customer behavior and identify factors that contribute to churn.
+The dataset consists of multiple categories of features, including customer profile details, subscription services, billing details, and churn indicators. It contains both categorical and numerical variables, making it suitable for exploratory data analysis and machine learning classification.
+2.1 Dataset Size
+•	Total rows: (Write the number after you check)
+•	Total columns: 34
+•	Target variable:
+o	Churn Label (Yes/No)
+o	Churn Value (0 = No, 1 = Yes)
+For modelling purposes, only Churn Value is used as the target.
+2.2 Important Feature Groups
+A. Customer Demographics
+These features describe the basic profile of the customer.
+•	Gender
+•	Senior Citizen
+•	Partner
+•	Dependents
+These features help understand common churn patterns across different population groups.
 
+B. Service Subscription Details
+These features indicate the services a customer is subscribed to.
+•	Phone Service
+•	Multiple Lines
+•	Internet Service
+•	Online Security
+•	Online Backup
+•	Device Protection
+•	Tech Support
+•	Streaming TV
+•	Streaming Movies
+These are among the most important predictors of churn, since customers with fewer services or add-ons tend to churn more frequently.
+C. Customer Account Information
+These relate to customer activity and contract type:
+•	Tenure Months
+•	Contract
+•	Paperless Billing
+•	Payment Method
+Contract type and tenure are strong indicators of churn behaviour.
+D. Billing Information
+These represent financial metrics:
+•	Monthly Charges
+•	Total Charges
+Monthly charges often correlate with dissatisfaction, making them key inputs for churn prediction.
+2.3 Removed / Excluded Columns
+Initially, the dataset contains additional columns that are not suitable for modeling due to low relevance or data leakage risks:
+•	Country, State, City, Zip Code, Lat Long, Latitude, Longitude – Low predictive value and add noise
+•	Churn Score, CLTV – These represent post-churn information or model-generated scores, leading to data leakage
+•	Count – Redundant and not useful
+These columns were excluded from the machine learning pipeline to avoid overfitting and ensure fair model performance.
+2.4 Target Variable
+The target variable used for classification is:
+Churn Value
+•	0 = Customer did not churn
+•	1 = Customer churned
+Summary
+This dataset provides a rich combination of demographic, service, and billing information, making it ideal for churn analysis. By focusing only on relevant and non-leakage features, the dataset becomes clean, reliable, and ready for EDA and machine learning model development.
+
+3. Exploratory Data Analysis (EDA)
+
+The Exploratory Data Analysis phase was conducted to understand the distribution of features, identify patterns, detect anomalies, and uncover relationships between variables influencing customer churn. This step helps in forming hypotheses and guiding feature engineering and model-building decisions.
+
+3.1 Univariate Analysis
+Univariate analysis was performed to examine each variable individually.
+Numerical Features
+Numerical features such as tenure, MonthlyCharges, and TotalCharges were analyzed using histograms and boxplots.
+•	Tenure showed a right-skewed distribution, indicating that many customers had recently joined.
+•	MonthlyCharges displayed a wide range, with a noticeable concentration of customers around mid-level charges.
+•	TotalCharges followed a similar pattern but included a few high-value outliers.
+These distributions help to understand customer spending behavior and contract duration patterns.
+Categorical Features
+Categorical variables such as gender, InternetService, Contract, PaymentMethod, and various service subscriptions were analysed using count plots.
+Key observations included:
+•	The dataset had a balanced ratio of male and female customers.
+•	Most customers used Fiber Optic or DSL for internet services.
+•	A large portion of customers were on Month-to-Month contracts, which is typically associated with higher churn rates.
+3.2 Correlation Analysis
+A correlation heatmap was generated for numerical features.
+Key findings:
+•	MonthlyCharges and TotalCharges were positively correlated.
+•	Tenure had a negative relationship with churn, reinforcing earlier observations.
+•	No severe multicollinearity was detected, meaning most features contribute uniquely to model performance.
+
+3.3 Key Insights from EDA
+•	Customers with short tenure, high monthly charges, or month-to-month contracts are at the highest risk of churn.
+•	Usage of add-on services like Tech Support significantly reduces churn.
+•	High-speed internet customers (Fiber Optic) tend to churn more, indicating potential service-related issues.
+•	Contract type is one of the strongest predictors of churn behaviour.
+
+4. Data Pre-processing
+Data preprocessing is a crucial step in preparing the dataset for machine learning. This stage ensures that the data is consistent, clean, and suitable for modeling. The following preprocessing steps were performed:
+4.1 Handling Missing Values
+Most features did not contain missing values; however:
+•	The column Total Charges had a few blank entries (represented as whitespace).
+•	These values were converted to numeric, and missing rows were either removed or imputed.
+This ensured the dataset remained consistent without affecting the model's performance.
+4.2 Data Type Conversion
+Certain columns required type corrections:
+•	Total Charges was originally stored as an object type due to whitespace values.
+•	So, this column changed to float datatype
+•	Categorical variables were validated to ensure correct encoding later.
+4.3 Removing Duplicates
+•	The dataset was checked for duplicate rows and no duplicates were found, so no entries were removed.
+4.4 Handling Outliers
+Numerical columns such as MonthlyCharges and TotalCharges were checked for extreme outliers using boxplots.
+•	Although some high billing values existed, they represented genuine customers, and were not removed.
+•	No synthetic outlier removal was performed to maintain original business patterns.
+4.5 Encoding Categorical Variables
+Since machine learning models require numerical inputs, categorical variables were transformed:
+All categorical variables in the dataset were converted to numeric format using LabelEncoder.
+This included:
+•	Binary variables (Yes/No)
+•	Gender
+•	InternetService
+•	Contract type
+•	Payment method
+•	Service-related columns
+The LabelEncoder assigns each category a unique integer value.
+This ensured that all model-ready features were numeric and machine-readable.
+4.6 Handling Class Imbalance Using SMOTE
+The target variable Churn was imbalanced, with fewer churned customers than non-churned. To prevent model bias, SMOTE (Synthetic Minority Oversampling Technique) was applied to generate synthetic samples for the minority class.
+This was done after splitting the dataset into training and testing sets to avoid data leakage.
+Using SMOTE balanced the training data and improved the model’s ability to correctly identify customers at risk of churn.
+4.7 Final Pre-processed Dataset
+After encoding and scaling:
+•	All categorical variables were converted into numeric form through LabelEncoder
+•	All numeric variables were normalized
+•	No duplicates or invalid entries remained
+•	The dataset was fully cleaned and ready for model building
+6. Model Training
+After preprocessing the data and addressing class imbalance, the next step was to train machine learning models to predict customer churn.
+6.1 Train-Test Split
+The preprocessed dataset was divided into training and testing sets using an 80:20 ratio.
+This split ensures that the model is trained on one subset and evaluated on unseen data to measure performance accurately.
+6.2 Models Used
+The following machine learning algorithms were trained and compared:
+•	Decision Tree Classifier – a simple, interpretable tree-based model that splits features based on information gain.
+•	Random Forest Classifier – an ensemble of decision trees that reduces overfitting and improves predictive accuracy.
+•	XGBoost Classifier – a gradient boosting algorithm that builds sequential trees to optimize performance and minimize errors.
+These models were selected to balance interpretability, robustness, and predictive power.
+6.3Model Fitting
+All models were trained on the SMOTE-resampled training dataset to ensure balanced learning.
+The fitted models were then used to make predictions on the testing set for evaluation.
+6.4 Saving the Trained Model
+The final trained model was saved for deployment using ‘pickle’.
+This allows the model to be loaded later for predicting churn on new customer data.
+7. Model Evaluation
+After training the models, their performance was evaluated on the testing dataset using standard classification metrics to determine the most effective model for predicting customer churn.
+7.1 Evaluation Metrics
+The following metrics were used to assess model performance:
+•	Accuracy – proportion of correctly predicted observations to total observations.
+•	Precision – proportion of correctly predicted churn cases to all predicted churn cases.
+•	Recall (Sensitivity) – proportion of correctly predicted churn cases to all actual churn cases.
+•	F1-score – harmonic mean of precision and recall, useful for imbalanced datasets.
+•	Confusion Matrix – detailed count of true positives, false positives, true negatives, and false negatives.
+7.2 Model Performance
+ 
+
+7.3 Confusion Matrix Interpretation
+•	True Positives (TP): Customers correctly predicted as churned.
+•	True Negatives (TN): Customers correctly predicted as non-churned.
+•	False Positives (FP): Non-churned customers incorrectly predicted as churned.
+•	False Negatives (FN): Churned customers incorrectly predicted as non-churned.
+8. Final Model Selection
+Based on the evaluation metrics, the Random Forest Classifier was selected as the final model for predicting customer churn.
+Reason for Selection:
+•	Random Forest achieved the highest accuracy among all models tested.
+•	It provided a good balance between precision and recall, ensuring reliable detection of churned customers.
+•	Ensemble methods like Random Forest reduce overfitting and improve generalization compared to a single Decision Tree.
+•	The model is robust and interpretable, with feature importance analysis providing actionable insights.
+Save the selected model for predicting the outcome on new data.
+9. Business Insights from the Model
+The Random Forest model allowed us to identify key factors influencing customer churn:
+1.	Contract Type: Customers with month-to-month contracts are at highest risk of churn.
+2.	Tenure: Short-tenure customers tend to leave earlier, emphasizing the need for retention programs targeting new customers.
+3.	Monthly Charges: Higher monthly charges increase the probability of churn.
+4.	Tech Support & Services: Customers using tech support and online services churn less, highlighting the importance of service quality.
+5.	Internet Service Type: Customers with Fiber Optic connections are slightly more likely to churn compared to DSL or no internet service.
+These insights can help the business design targeted retention strategies, such as offering discounts for long-term contracts, proactive customer support, or personalized promotions.
+
+10. Deployment / Prediction on New Data
+After selecting Random Forest as the final model, it was used to predict churn for new/unseen customer data. The workflow included:
+•	Preprocessing raw input data (encoding categorical features and scaling numeric features)
+•	Loading the saved Random Forest model --- Predicting churn on new customers
+
+•	Interpreting output:
+	1 = High risk of churn
+	0 = Low risk of churn
+This deployment-ready model allows the business to proactively identify customers at risk and implement retention strategies.
+
+11. Conclusion
+The Customer Churn Prediction project successfully demonstrated how machine learning can be used to identify customers at risk of leaving a service.
+Through data preprocessing, handling class imbalance with SMOTE, and evaluating multiple models, the Random Forest Classifier was selected as the final model due to its superior accuracy and balanced performance on both precision and recall.
+Key takeaways include:
+•	Data preprocessing and encoding categorical features using LabelEncoder ensured the dataset was clean and model-ready.
+•	SMOTE effectively addressed class imbalance, allowing the model to better detect churned customers.
+•	Random Forest identified the most important factors affecting churn, such as contract type, tenure, monthly charges, and usage of support services.
+•	The model can be deployed on new customer data to provide actionable insights, enabling businesses to implement targeted retention strategies.
+Overall, this project highlights the importance of combining data analysis, machine learning, and domain insights to make informed business decisions and reduce customer churn. Future improvements could include incorporating additional customer behavior features, experimenting with ensemble techniques, or developing a real-time churn prediction system.
+
+
+
+
+
+
+
+	
